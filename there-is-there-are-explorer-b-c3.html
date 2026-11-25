@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>There is / There are</title>
+<style>
+:root{--bg:#f4f7fb;--card:#fff;--ink:#1d2433;--mut:#5d6b82;--line:#dfe5ee;--brand:#23866f;--brand-ink:#fff;--accent:#e2692f;--good:#1f9d5c;--good-bg:#e6f6ee;--bad:#d64545;--bad-bg:#fdeaea;--soft:#e8f5f1;--warn:#f0a42b;--hint:#fff6df}
+@media (prefers-color-scheme:dark){:root{--bg:#10151d;--card:#1a2230;--ink:#e8edf5;--mut:#9aa8bd;--line:#2b3648;--brand:#3bb597;--brand-ink:#0b1a16;--accent:#f08a57;--good:#4cc88a;--good-bg:#14301f;--bad:#ef7a7a;--bad-bg:#371b1d;--soft:#152a26;--hint:#3a3114}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px}
+header.top{background:var(--brand);color:var(--brand-ink);padding:14px 0}
+header .wrap{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.kicker{font-size:12px;letter-spacing:.06em;text-transform:uppercase;opacity:.85}
+h1{margin:0;font-size:24px;line-height:1.2}
+.sub{font-size:13px;opacity:.9}
+.hud{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.chip{background:rgba(255,255,255,.18);border-radius:999px;padding:6px 12px;font-weight:600;font-variant-numeric:tabular-nums;display:flex;gap:8px;align-items:center}
+.chip button{background:#fff;color:#1d2433;border:0;border-radius:999px;padding:3px 10px;font-weight:600;cursor:pointer;font-size:13px}
+nav{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;gap:6px;overflow-x:auto;padding:8px 16px}
+.pill{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:5px 11px;font-size:13px;cursor:pointer;display:flex;gap:6px;align-items:center;white-space:nowrap}
+.pill .pn{background:var(--soft);color:var(--brand);width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700}
+.pill small{color:var(--mut)}
+.pill.cur{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand) inset}
+.pill.done .pn{background:var(--good);color:#fff}
+main{padding:18px 0 90px}
+.stage[hidden]{display:none}
+.shead{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:10px}
+.shead h2{margin:0;font-size:21px}
+.badge{font-size:13px;color:var(--mut);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-variant-numeric:tabular-nums}
+.badge.over{border-color:var(--warn);color:var(--warn);font-weight:600}
+details.cue{background:var(--soft);border-radius:12px;padding:8px 12px;margin-bottom:12px;font-size:14px}
+details.cue summary{cursor:pointer;font-weight:600;color:var(--brand)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:640px){.grid2{grid-template-columns:1fr}}
+.rule{border-radius:12px;padding:12px 14px;border:2px solid}
+.rule.is{border-color:var(--brand);background:var(--soft)}
+.rule.are{border-color:var(--accent)}
+.rule h3{margin:0 0 4px;font-size:18px}
+.rule ul{margin:6px 0 0;padding-left:18px}
+.item{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.item.ok{border-left-color:var(--good)}
+.item.bad{border-left-color:var(--bad)}
+.q{display:flex;gap:10px;align-items:flex-start}
+.num{flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:var(--soft);color:var(--brand);display:grid;place-items:center;font-weight:700;font-size:13px;margin-top:1px}
+.qt{flex:1}
+.body{margin:8px 0 0 36px}
+.scene{font-size:34px;letter-spacing:4px;line-height:1.2;margin-bottom:2px}
+.blank{display:inline-block;min-width:60px;border-bottom:2px solid var(--mut);text-align:center;font-weight:700;color:var(--brand)}
+.opts{display:flex;gap:8px;flex-wrap:wrap}
+.opt{border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:8px 14px;font:inherit;cursor:pointer;text-align:left}
+.opt:hover:not(:disabled){border-color:var(--brand)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-bg);text-decoration:line-through;opacity:.8}
+.opt.correct{border-color:var(--good);background:var(--good-bg);font-weight:600}
+.opt:disabled{cursor:default}
+input.gap{font:inherit;border:0;border-bottom:2px solid var(--mut);background:transparent;color:var(--ink);padding:0 4px;width:90px;text-align:center;font-weight:700}
+input.gap.wide{width:200px;border:2px solid var(--line);border-radius:8px;padding:6px 10px;text-align:left;font-weight:400}
+input.gap:focus,textarea:focus{outline:2px solid var(--brand);outline-offset:2px}
+textarea{width:100%;font:inherit;border:2px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--card);color:var(--ink);resize:vertical}
+.slot,.pool{min-height:44px;display:flex;gap:6px;flex-wrap:wrap;padding:6px;border-radius:10px}
+.slot{border:2px dashed var(--line);margin-bottom:6px}
+.chipw{border:2px solid var(--brand);background:var(--soft);color:var(--ink);border-radius:8px;padding:5px 11px;font:inherit;cursor:pointer}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 0 36px}
+.btn{border:0;border-radius:9px;padding:7px 14px;font:inherit;font-weight:600;cursor:pointer;background:var(--brand);color:var(--brand-ink)}
+.btn.ghost{background:transparent;color:var(--mut);border:1px solid var(--line);font-weight:500}
+.btn:disabled{opacity:.45;cursor:default}
+.fb{margin:8px 0 0 36px;font-size:15px}
+.fb .no{color:var(--bad);font-weight:600}
+.hintbox{margin:8px 0 0 36px;background:var(--hint);border-radius:8px;padding:6px 10px;font-size:14px}
+.vocab{display:flex;gap:6px;flex-wrap:wrap}
+.vocab span{background:var(--soft);border-radius:999px;padding:3px 11px;font-size:14px}
+.vocab small{color:var(--mut)}
+.map{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.place{background:var(--soft);border-radius:10px;padding:8px 10px;text-align:center}
+.place .em{font-size:26px;letter-spacing:2px}
+.place .nm{font-size:13px;color:var(--mut)}
+.script{white-space:pre-line;font-size:15px}
+.stars{display:flex;gap:6px}
+.stars button{background:none;border:0;font-size:32px;cursor:pointer;filter:grayscale(1);opacity:.5;padding:0}
+.stars button.on{filter:none;opacity:1}
+.sum{text-align:center}
+.sum .big{font-size:40px;font-weight:800;color:var(--brand)}
+.sum table{margin:8px auto 0;border-collapse:collapse;font-size:14px;min-width:260px}
+.sum td{padding:3px 10px;border-bottom:1px solid var(--line);text-align:left}
+.sum td:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.checks label{display:block;margin:6px 0;cursor:pointer}
+footer.nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);padding:10px 0}
+footer .wrap{display:flex;justify-content:space-between;gap:10px}
+@media print{nav,footer.nav,.hud{display:none}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div><div class="kicker">Explorer B · Unit C · Lesson 3</div><h1>There is / There are</h1><div class="sub">1-to-1 · 90 minutes</div></div>
+  <div class="hud">
+    <div class="chip">⭐ <span id="score">0</span> / <span id="max">0</span></div>
+    <div class="chip"><span id="clock">00:00</span><button id="tbtn" type="button">▶ Start</button></div>
+    <div class="chip"><button id="reset" type="button">↺ Reset</button></div>
+  </div>
+</div></header>
+<nav><div class="wrap" id="nav"></div></nav>
+<main><div class="wrap" id="stages"></div></main>
+<footer class="nav"><div class="wrap">
+  <button class="btn ghost" id="prev" type="button">← Back</button>
+  <button class="btn" id="next" type="button">Next stage →</button>
+</div></footer>
+
+<script>
+(function(){
+"use strict";
+var norm=function(s){return String(s).toLowerCase().replace(/[’]/g,"'").replace(/[.,!?;:]/g,"").replace(/\s+/g," ").trim();};
+
+/* ---------- item builders ---------- */
+function ch(id,prompt,options,answer,hint,key){return {id:id,kind:"choice",prompt:prompt,options:options,answer:[].concat(answer),hint:hint,key:key};}
+function tx(id,prompt,accept,hint,key){return {id:id,kind:"text",prompt:prompt,accept:accept.map(norm),hint:hint,key:key};}
+function od(id,prompt,words,answer,hint,key){return {id:id,kind:"order",prompt:prompt,words:words,answer:norm(answer),hint:hint,key:key||answer};}
+function wr(id,prompt,verb,hint,key){return {id:id,kind:"write",prompt:prompt,verb:verb,hint:hint,key:key};}
+var IS_ARE=["is","are"], TH=["There is","There are"];
+
+/* ---------- map data ---------- */
+var MAP=[["🏥","hospital",1],["🏫","school",2],["☕","cafe",3],["🛒","supermarket",1],["📚","bookstore",2],["⛽","petrol station",1],["🏨","hotel",1],["🦁","zoo",1],["🌳","park",2]];
+function mapHTML(){
+  return '<div class="map">'+MAP.map(function(p){return '<div class="place"><div class="em">'+new Array(p[2]+1).join(p[0])+'</div><div class="nm">'+p[1]+' × '+p[2]+'</div></div>';}).join("")+'</div>';
+}
+function scene(e,n){return '<div class="scene">'+new Array(n+1).join(e)+'</div>';}
+
+/* ---------- stages ---------- */
+var ZOO_SCRIPT="There are 5 sections: mammals, birds, reptiles, amphibians, and aquatic animals.\nThere is a lake, but don't litter or feed the fish.\nAre there any questions?\nThere are 12 cobras in the reptiles.";
+
+var STAGES=[
+{t:"Warm-up",icon:"👀",min:5,
+ cue:"Show the scenes one by one. Ask: What do you see? How many? Let the student notice is vs are before you name the rule.",
+ blocks:[{items:[
+  ch("w1",scene("🏛️",1)+'There <span class="blank">___</span> a museum.',IS_ARE,0,"One museum or more than one?","One museum → <b>There is</b> a museum."),
+  ch("w2",scene("🏛️",2)+'There <span class="blank">___</span> two museums.',IS_ARE,1,"Count the buildings.","Two museums → <b>There are</b> two museums."),
+  ch("w3",scene("🌳",3)+'There <span class="blank">___</span> three trees.',IS_ARE,1,"How many trees?","Three trees → <b>There are</b>."),
+  ch("w4",scene("🏥",1)+'There <span class="blank">___</span> a hospital.',IS_ARE,0,"Look at the article: a.","One hospital → <b>There is</b>.")
+ ]}]},
+
+{t:"Listening: Elm Zoo",icon:"🎧",min:10,
+ cue:"Play the book audio (activity 2). Listen 1: gist. Listen 2: details. Show the key sentences only after the questions.",
+ blocks:[
+  {html:'<div class="card"><div class="vocab"><span>section <small>bagian</small></span><span>mammals <small>mamalia</small></span><span>birds <small>burung</small></span><span>reptiles <small>reptil</small></span><span>amphibians <small>amfibi</small></span><span>aquatic <small>air</small></span><span>cobra <small>kobra</small></span><span>lake <small>danau</small></span><span>litter <small>membuang sampah</small></span><span>feed <small>memberi makan</small></span></div></div>'},
+  {items:[
+   ch("l1","What is the audio about?",["A zookeeper gives information and rules for visiting Elm Zoo.","A student talks about her school.","A tourist asks for directions to a zoo."],0,"Who is speaking? Where?","A zookeeper gives information and rules at <b>Elm Zoo</b>."),
+   ch("l2","How many sections are there at Elm Zoo?",["3","4","5","12"],2,"Listen for the number after “There are”.","<b>There are five sections</b>: mammals, birds, reptiles, amphibians, aquatic animals."),
+   tx("l3","How many cobras are there in the reptile section?",["12","twelve","there are 12 cobras","there are twelve cobras"],"A number between 10 and 15.","<b>There are twelve cobras</b> in the reptile section."),
+   ch("l4","What must visitors NOT do at the lake?",["Swim or take photos","Litter or feed the fish","Run or shout"],1,"Listen after “there is a lake, but…”.","<b>There is a lake</b>, but don't litter or feed the fish.")
+  ]},
+  {html:'<details class="card"><summary><b>Show key sentences</b> (after the questions)</summary><p class="script">'+ZOO_SCRIPT+'</p></details>'}
+ ]},
+
+{t:"Deeper Insight",icon:"🔍",min:5,
+ cue:"Read the box together. Ask the student to explain the rule in their own words (Indonesian is fine), then do the quick check.",
+ blocks:[
+  {html:'<div class="grid2"><div class="rule is"><h3>There is</h3><div>1 thing: a / an / one + singular noun</div><ul><li>There is a bicycle outside the house.</li><li>There is a cat on the sofa.</li></ul></div><div class="rule are"><h3>There are</h3><div>2 or more: two, five, some, many, a lot of, a few + plural noun</div><ul><li>There are two schools in my neighbourhood.</li><li>There are five pencils in the pencil case.</li><li>There are some flowers in the garden.</li></ul></div></div>'},
+  {items:[
+   ch("d1",'There <span class="blank">___</span> an umbrella in the bag.',IS_ARE,0,"an = one","<b>an umbrella</b> = one → There is."),
+   ch("d2",'There <span class="blank">___</span> some books on the shelf.',IS_ARE,1,"some + plural noun","<b>some books</b> = more than one → There are."),
+   ch("d3",'There <span class="blank">___</span> many cars on the road.',IS_ARE,1,"many = a big number","<b>many cars</b> → There are."),
+   ch("d4",'There <span class="blank">___</span> a bird in the tree.',IS_ARE,0,"Look at the article.","<b>a bird</b> = one → There is.")
+  ]}]},
+
+{t:"Write down",icon:"✍️",min:10,
+ cue:"Play or read the Elm Zoo audio again. The student fills each gap while listening. Pause after every sentence.",
+ blocks:[{items:[
+  tx("wd1","There {{}} five sections: mammals, birds, reptiles, amphibians, and aquatic animals.",["are"],"five = one or more?","<b>are</b> — five sections (plural)."),
+  tx("wd2","There {{}} a lake, but don't litter or feed the fish.",["is"],"a lake = one lake","<b>is</b> — a lake (singular)."),
+  tx("wd3","{{}} there any questions?",["are"],"Questions = more than one. Start with a capital letter in the book.","<b>Are</b> there any questions? — questions (plural)."),
+  tx("wd4","There {{}} twelve cobras in the reptile section.",["are"],"twelve = a big number","<b>are</b> — twelve cobras (plural).")
+ ]}]},
+
+{t:"FYI: Common mistakes",icon:"⚠️",min:5,
+ cue:"Ask the student why the wrong sentence is wrong before they check. Then talk about being specific.",
+ blocks:[{items:[
+  ch("f1","Pick the correct sentence.",["There is some apples in the basket.","There are some apples in the basket."],1,"apples = one or many?","<b>There are some apples</b> in the basket. Apples is plural."),
+  ch("f2","Pick the correct sentence.",["There is people in the room.","There are two people in the room."],1,"people = more than one person.","<b>There are two people</b> in the room. For one person: There is a person in the room."),
+  ch("f3","Which sentence is more specific?",["There is some food on the table.","There is a pizza on the table."],1,"Which one tells you exactly what food?","<b>There is a pizza</b> on the table. Be specific: a pizza, three sandwiches.")
+ ]}]},
+
+{t:"Fill in the gaps",icon:"🧩",min:10,
+ cue:"After each answer, the student reads the full sentence aloud.",
+ blocks:[{items:[
+  ch("g1",'<span class="blank">___</span> a car in the garage.',TH,0,"a car = one","a car → <b>There is</b>."),
+  ch("g2",'<span class="blank">___</span> five children in the daycare center.',TH,1,"five = many","five children → <b>There are</b>."),
+  ch("g3",'<span class="blank">___</span> a lot of clouds in the sky.',TH,1,"clouds = plural","a lot of clouds → <b>There are</b>."),
+  ch("g4",'<span class="blank">___</span> a pack of wolves in the forest.',TH,1,"Look at the noun after “of”: wolves.","a pack of <b>wolves</b> → <b>There are</b> (the plural noun decides)."),
+  ch("g5",'<span class="blank">___</span> a shop across the street.',TH,0,"a shop = one","a shop → <b>There is</b>."),
+  ch("g6",'<span class="blank">___</span> a few people waiting outside the theatre.',TH,1,"a few + plural","a few people → <b>There are</b>.")
+ ]}]},
+
+{t:"Correct or Incorrect",icon:"✅",min:10,
+ cue:"For each Incorrect sentence, ask the student to say the corrected sentence aloud.",
+ blocks:[{items:[
+  ch("c1","There is a big tree in the park.",["Correct ✔","Incorrect ✘"],0,"One tree?","a big tree = one → There is ✔"),
+  ch("c2","There is a colourful butterfly in the garden.",["Correct ✔","Incorrect ✘"],0,"One butterfly?","a colourful butterfly = one → There is ✔"),
+  ch("c3","There is many stars in the night sky.",["Correct ✔","Incorrect ✘"],1,"Look at the word: many.","✘ → <b>There are many stars</b> in the night sky."),
+  ch("c4","There is three children playing in the playground.",["Correct ✔","Incorrect ✘"],1,"three = ?","✘ → <b>There are three children</b> playing in the playground."),
+  ch("c5","There is colourful balloons at the birthday party.",["Correct ✔","Incorrect ✘"],1,"balloons = ?","✘ → <b>There are colourful balloons</b> at the birthday party.")
+ ]}]},
+
+{t:"Game: Detective",icon:"🕵️",min:10,
+ cue:"Extra game (not in the book, fills the 90 minutes). Role swap at the end: the student writes one mystery clue and you guess.",
+ blocks:[
+  {html:'<div class="card"><b>Maple Street</b>'+mapHTML()+'</div>'},
+  {items:[
+   od("m1","Build the sentence about the map.",["on","schools","There","two","Maple Street","are"],"There are two schools on Maple Street.","Start with “There”. Two schools = plural.","<b>There are two schools on Maple Street.</b>"),
+   od("m2","Build the sentence about the map.",["a","hospital","There","is","on","Maple Street"],"There is a hospital on Maple Street.","One hospital = singular.","<b>There is a hospital on Maple Street.</b>"),
+   ch("m3","🔍 Mystery place 1: “There are lots of books. There is a cashier near the door. You can buy a new novel here.”",["🛒 supermarket","📚 bookstore","🏨 hotel","⛽ petrol station"],1,"What do you buy? A novel.","<b>📚 bookstore</b>"),
+   ch("m4","🔍 Mystery place 2: “There are doctors and nurses. There is an emergency room. People come here when they are sick.”",["🏫 school","☕ cafe","🏥 hospital","🦁 zoo"],2,"Who is sick? Where do they go?","<b>🏥 hospital</b>"),
+   ch("m5","🔍 Mystery place 3: “There are lions and giraffes. There is a ticket office at the gate. Families visit it at the weekend.”",["🦁 zoo","🏛️ museum","🌳 park","🏨 hotel"],0,"Which animals are in the clue?","<b>🦁 zoo</b>")
+  ]}]},
+
+{t:"Write sentences",icon:"📝",min:10,
+ cue:"Student types here or writes in a notebook. Check agreement: one thing → is, more than one → are.",
+ blocks:[
+  {html:'<div class="card"><b>Maple Street</b>'+mapHTML()+'</div>'},
+  {items:[
+   wr("s1","Write a sentence with <b>There is</b>.","is","Choose a place with × 1.","e.g. There is a hospital on Maple Street."),
+   wr("s2","Write another sentence with <b>There is</b>.","is","Choose another place with × 1.","e.g. There is a zoo on Maple Street."),
+   wr("s3","Write a third sentence with <b>There is</b>.","is","Use a / an + place.","e.g. There is a hotel on Maple Street."),
+   wr("s4","Write a sentence with <b>There are</b>.","are","Choose a place with × 2 or × 3.","e.g. There are two schools on Maple Street."),
+   wr("s5","Write another sentence with <b>There are</b>.","are","Use a number + plural noun.","e.g. There are three cafes on Maple Street."),
+   wr("s6","Write a third sentence with <b>There are</b>.","are","Try: two bookstores / two parks.","e.g. There are two parks on Maple Street.")
+  ]}]},
+
+{t:"Interview & Role-play",icon:"🎤",min:15,
+ cue:"Interview (8′) → Elm Zoo guide role-play (4′) → exit check (3′). Rate speaking at the end.",
+ blocks:[
+  {html:'<div class="card"><b>🎤 Interview (8 min)</b><p style="margin:6px 0">Ask and answer. Use <i>There is / There are</i>.</p><ul><li>What is the place you love to visit in your neighbourhood?</li><li>What is there at that place?</li><li>Are there any places you don\'t like? Why?</li><li>What do you want to change?</li></ul><p style="margin:6px 0"><i>A: Hello! What is the place you love to visit in your neighbourhood?<br>B: Hi! I love to visit the park in my neighbourhood. There is a lake where I often accompany my father fishing.</i></p><div class="vocab"><span>playground <small>taman bermain</small></span><span>bench <small>bangku</small></span><span>noisy <small>bising</small></span><span>quiet <small>tenang</small></span><span>nearby <small>di dekat sini</small></span></div></div>'},
+  {html:'<div class="card"><b>🦓 Role-play (4 min): Elm Zoo guide</b><p style="margin:6px 0">Student = zookeeper. Teacher = visitor. Tell the visitor what there is and the rules: the sections, the cobras, the lake.</p></div>'},
+  {items:[{id:"r1",kind:"rate",prompt:"<b>Teacher rating: speaking</b> — There is / There are used correctly, vocabulary, fluency.",max:3}]},
+  {html:'<div class="card checks"><b>Exit check (3 min)</b><label><input type="checkbox"> I can use <i>There is</i> with one thing.</label><label><input type="checkbox"> I can use <i>There are</i> with more than one thing.</label><label><input type="checkbox"> I can describe my neighbourhood.</label></div>'},
+  {summary:true}
+ ]}
+];
+
+/* ---------- state ---------- */
+var state={}, all=[];
+STAGES.forEach(function(s){s.blocks.forEach(function(b){(b.items||[]).forEach(function(it){state[it.id]={att:0,done:false,pts:0};all.push(it);});});});
+var MAX=all.reduce(function(a,it){return a+(it.kind==="rate"?it.max:1);},0);
+var cur=0, running=false, elapsed=0, stageSec=STAGES.map(function(){return 0;});
+
+function fmt(n){return n%1?n.toFixed(1):String(n);}
+function mmss(sec){var m=Math.floor(sec/60),s=sec%60;return (m<10?"0":"")+m+":"+(s<10?"0":"")+s;}
+
+/* ---------- write-check ---------- */
+function checkThere(text,verb){
+  var t=text.trim().replace(/\s+/g," ");
+  if(!t) return {empty:true};
+  var m=(verb==="is"?/^there\s+(?:is|'s|’s)\s+(.+)$/i:/^there\s+are\s+(.+)$/i).exec(t);
+  if(!m) return {ok:false,msg:'Start with “There '+verb+' …”.'};
+  var rest=m[1], words=rest.split(" ");
+  if(words.length<2) return {ok:false,msg:"Add what and where. Example: a hospital on Maple Street."};
+  var many=/^(two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|many|several|a few|few|\d+)\b/i;
+  var soft=/^(some|a lot of|lots of)\s+(\S+)/i.exec(rest);
+  var isPlural=many.test(rest)||(soft&&/[^s]s$/i.test(soft[2])&&!/ss$/i.test(soft[2]));
+  var isSingular=/^(a|an|one)\s/i.test(rest)&&!/^(a few|a lot of)\b/i.test(rest);
+  if(verb==="is"&&isPlural) return {ok:false,msg:"More than one thing → use “There are”."};
+  if(verb==="are"&&isSingular) return {ok:false,msg:"Only one thing → use “There is”."};
+  return {ok:true};
+}
+
+/* ---------- build DOM ---------- */
+var stagesEl=document.getElementById("stages"), navEl=document.getElementById("nav");
+var summaryEl=null;
+
+function buildItem(item,n){
+  var st=state[item.id];
+  var w=document.createElement("div"); w.className="item"; w.id="it-"+item.id;
+  var q=document.createElement("div"); q.className="q";
+  q.innerHTML='<span class="num">'+n+'</span><div class="qt"></div>'; w.appendChild(q);
+  var qt=q.querySelector(".qt"), body=document.createElement("div"); body.className="body";
+  var bar=document.createElement("div"); bar.className="bar";
+  var fb=document.createElement("div"); fb.className="fb"; fb.setAttribute("aria-live","polite");
+  var hb=document.createElement("div"); hb.className="hintbox"; hb.hidden=true;
+  var hintBtn=document.createElement("button"); hintBtn.type="button"; hintBtn.className="btn ghost"; hintBtn.textContent="💡 Hint";
+  var checkBtn=document.createElement("button"); checkBtn.type="button"; checkBtn.className="btn"; checkBtn.textContent="Check";
+  var showBtn=document.createElement("button"); showBtn.type="button"; showBtn.className="btn ghost"; showBtn.textContent="Show answer"; showBtn.hidden=true;
+  var lockFn=function(){};
+
+  function conclude(ok){
+    st.done=true; st.pts=ok?(st.att===1?1:0.5):0;
+    w.classList.add(ok?"ok":"bad");
+    fb.innerHTML=(ok?"<b>✔ "+(st.att===1?"Correct!":"Got it!")+"</b> ":"<b>Answer:</b> ")+item.key;
+    showBtn.hidden=true; checkBtn.disabled=true; hintBtn.hidden=true; hb.hidden=true;
+    lockFn(ok); refresh();
+  }
+  function right(){st.att++; conclude(true);}
+  function wrong(msg){
+    st.att++;
+    if(st.att>=2){conclude(false);return;}
+    fb.innerHTML='<span class="no">✘ '+(msg||"Not quite. Try again.")+'</span>'; showBtn.hidden=false; refresh();
+  }
+  hintBtn.onclick=function(){hb.hidden=!hb.hidden; hb.textContent="💡 "+item.hint;};
+  showBtn.onclick=function(){st.att=Math.max(st.att,1); conclude(false);};
+
+  if(item.kind==="choice"){
+    qt.innerHTML=item.prompt;
+    var opts=document.createElement("div"); opts.className="opts"; body.appendChild(opts);
+    var btns=item.options.map(function(o,i){
+      var b=document.createElement("button"); b.type="button"; b.className="opt"; b.textContent=o;
+      b.onclick=function(){
+        if(st.done) return;
+        if(item.answer.indexOf(i)>-1){
+          b.classList.add("correct"); var bl=qt.querySelector(".blank"); if(bl) bl.textContent=o;
+          right();
+        } else {b.classList.add("wrong"); b.disabled=true; wrong();}
+      };
+      opts.appendChild(b); return b;
+    });
+    lockFn=function(){btns.forEach(function(b,i){b.disabled=true; if(item.answer.indexOf(i)>-1) b.classList.add("correct");});};
+    checkBtn.hidden=true;
+  }
+  else if(item.kind==="text"){
+    var gapHTML='<input class="gap" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="answer">';
+    var wide=item.prompt.indexOf("{{}}")<0;
+    qt.innerHTML=wide?item.prompt:item.prompt.replace("{{}}",gapHTML);
+    if(wide){body.innerHTML='<input class="gap wide" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="answer">';}
+    var inp=(wide?body:qt).querySelector("input");
+    var doCheck=function(){
+      if(st.done) return; var v=norm(inp.value);
+      if(!v){fb.innerHTML='<span class="no">Type your answer first.</span>';return;}
+      if(item.accept.indexOf(v)>-1) right(); else wrong();
+    };
+    checkBtn.onclick=doCheck; inp.addEventListener("keydown",function(e){if(e.key==="Enter") doCheck();});
+    lockFn=function(){inp.disabled=true;};
+  }
+  else if(item.kind==="order"){
+    qt.innerHTML=item.prompt;
+    var slot=document.createElement("div"); slot.className="slot"; var pool=document.createElement("div"); pool.className="pool";
+    body.appendChild(slot); body.appendChild(pool);
+    var inSlot=[], inPool=item.words.map(function(_,i){return i;});
+    var draw=function(){
+      slot.innerHTML=""; pool.innerHTML="";
+      inSlot.forEach(function(i){var b=document.createElement("button"); b.type="button"; b.className="chipw"; b.textContent=item.words[i]; b.onclick=function(){if(st.done)return; inSlot.splice(inSlot.indexOf(i),1); inPool.push(i); draw();}; slot.appendChild(b);});
+      inPool.forEach(function(i){var b=document.createElement("button"); b.type="button"; b.className="chipw"; b.textContent=item.words[i]; b.onclick=function(){if(st.done)return; inPool.splice(inPool.indexOf(i),1); inSlot.push(i); draw();}; pool.appendChild(b);});
+    };
+    draw();
+    checkBtn.onclick=function(){
+      if(st.done) return;
+      if(!inSlot.length){fb.innerHTML='<span class="no">Tap the words to build the sentence.</span>';return;}
+      var s=inSlot.map(function(i){return item.words[i];}).join(" ");
+      if(norm(s)===item.answer) right(); else wrong();
+    };
+    lockFn=function(){slot.querySelectorAll("button").forEach(function(b){b.disabled=true;}); pool.querySelectorAll("button").forEach(function(b){b.disabled=true;});};
+  }
+  else if(item.kind==="write"){
+    qt.innerHTML=item.prompt;
+    var ta=document.createElement("textarea"); ta.rows=2; ta.placeholder="There "+item.verb+" …"; body.appendChild(ta);
+    checkBtn.onclick=function(){
+      if(st.done) return; var r=checkThere(ta.value,item.verb);
+      if(r.empty){fb.innerHTML='<span class="no">Write your sentence first.</span>';return;}
+      if(r.ok) right(); else wrong(r.msg);
+    };
+    lockFn=function(){ta.disabled=true;};
+  }
+  else if(item.kind==="rate"){
+    qt.innerHTML=item.prompt;
+    var stars=document.createElement("div"); stars.className="stars"; body.appendChild(stars);
+    var sb=[1,2,3].map(function(n2){var b=document.createElement("button"); b.type="button"; b.textContent="⭐"; b.setAttribute("aria-label",n2+" star"); b.onclick=function(){st.pts=n2; st.done=true; sb.forEach(function(x,j){x.classList.toggle("on",j<n2);}); refresh();}; stars.appendChild(b); return b;});
+    w.appendChild(body); return w;
+  }
+  w.appendChild(body);
+  bar.appendChild(hintBtn); if(item.kind!=="choice") bar.appendChild(checkBtn); bar.appendChild(showBtn);
+  w.appendChild(bar); w.appendChild(hb); w.appendChild(fb);
+  return w;
+}
+
+STAGES.forEach(function(s,i){
+  var sec=document.createElement("section"); sec.className="stage"; sec.hidden=(i!==0);
+  var start=STAGES.slice(0,i).reduce(function(a,x){return a+x.min;},0);
+  var head='<div class="shead"><h2>'+s.icon+' '+(i+1)+'. '+s.t+'</h2><span class="badge" id="sc'+i+'">00:00 / '+s.min+':00 · min '+start+'–'+(start+s.min)+'</span></div>';
+  sec.innerHTML=head+'<details class="cue" open><summary>🎓 Teacher cue</summary>'+s.cue+'</details>';
+  var n=0;
+  s.blocks.forEach(function(b){
+    if(b.html){var d=document.createElement("div"); d.innerHTML=b.html; while(d.firstChild) sec.appendChild(d.firstChild);}
+    if(b.items) b.items.forEach(function(it){n++; sec.appendChild(buildItem(it,n));});
+    if(b.summary){summaryEl=document.createElement("div"); summaryEl.className="card sum"; sec.appendChild(summaryEl);}
+  });
+  stagesEl.appendChild(sec);
+  var p=document.createElement("button"); p.type="button"; p.className="pill"; p.id="pill"+i;
+  p.innerHTML='<span class="pn">'+(i+1)+'</span>'+s.t+' <small>'+s.min+'′</small>';
+  p.onclick=function(){go(i);}; navEl.appendChild(p);
+});
+
+/* ---------- refresh score / nav / summary ---------- */
+function stageItems(s){var a=[]; s.blocks.forEach(function(b){(b.items||[]).forEach(function(it){a.push(it);});}); return a;}
+function refresh(){
+  var tot=0; all.forEach(function(it){tot+=state[it.id].pts;});
+  document.getElementById("score").textContent=fmt(tot);
+  document.getElementById("max").textContent=MAX;
+  STAGES.forEach(function(s,i){
+    var items=stageItems(s), d=items.length&&items.every(function(it){return state[it.id].done;});
+    var p=document.getElementById("pill"+i); p.classList.toggle("done",!!d); p.classList.toggle("cur",i===cur);
+  });
+  if(summaryEl){
+    var pct=MAX?Math.round(tot/MAX*100):0;
+    var badge=pct>=90?"🏆 Neighbourhood Expert":pct>=70?"🌟 Great Explorer":pct>=50?"👍 Good Job":"🚀 Keep Exploring";
+    var rows=STAGES.map(function(s,i){var items=stageItems(s); if(!items.length) return ""; var sc=0,mx=0; items.forEach(function(it){sc+=state[it.id].pts; mx+=(it.kind==="rate"?it.max:1);}); return "<tr><td>"+(i+1)+". "+s.t+"</td><td>"+fmt(sc)+" / "+mx+"</td></tr>";}).join("");
+    summaryEl.innerHTML='<div class="big">'+fmt(tot)+' / '+MAX+'</div><div><b>'+badge+'</b> · '+pct+'%</div><table>'+rows+'</table>';
+  }
+}
+
+/* ---------- navigation & timer ---------- */
+function go(i){
+  cur=Math.max(0,Math.min(STAGES.length-1,i));
+  Array.prototype.forEach.call(stagesEl.children,function(el,j){el.hidden=(j!==cur);});
+  document.getElementById("prev").disabled=(cur===0);
+  document.getElementById("next").disabled=(cur===STAGES.length-1);
+  refresh(); window.scrollTo(0,0);
+  var p=document.getElementById("pill"+cur); if(p&&p.scrollIntoView) p.scrollIntoView({inline:"center",block:"nearest"});
+}
+document.getElementById("prev").onclick=function(){go(cur-1);};
+document.getElementById("next").onclick=function(){go(cur+1);};
+var tbtn=document.getElementById("tbtn");
+tbtn.onclick=function(){running=!running; tbtn.textContent=running?"⏸ Pause":"▶ Start";};
+setInterval(function(){
+  if(!running) return;
+  elapsed++; stageSec[cur]++;
+  document.getElementById("clock").textContent=mmss(elapsed);
+  var b=document.getElementById("sc"+cur), s=STAGES[cur];
+  var start=STAGES.slice(0,cur).reduce(function(a,x){return a+x.min;},0);
+  b.textContent=mmss(stageSec[cur])+" / "+s.min+":00 · min "+start+"–"+(start+s.min);
+  b.classList.toggle("over",stageSec[cur]>s.min*60);
+},1000);
+var rs=document.getElementById("reset"), rt=null;
+rs.onclick=function(){
+  if(rt){location.reload();return;}
+  rs.textContent="Sure? Tap again"; rt=setTimeout(function(){rs.textContent="↺ Reset"; rt=null;},3000);
+};
+go(0);
+})();
+</script>
+</body>
+</html>
